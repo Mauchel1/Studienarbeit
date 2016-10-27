@@ -13,9 +13,6 @@ BLUE = 210
 GREEN = 145
 RED = 320
 
-hue = RED / 2
-lower_range = np.array([max(0,hue-20),0,0], dtype=np.uint8)
-upper_range = np.array([min(180,hue+20),255,255], dtype=np.uint8)
 
 #kamera init
 camera = PiCamera()
@@ -58,7 +55,6 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
     roiImage = image[150:350, 100:530] # Region of Interest setzen
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
-    mask = cv2.inRange(hsvImage, lower_range, upper_range) # threshold für blauen kanal
 
     #b,g,r = cv2.split(image)
     h,s,v = cv2.split(hsvImage)
