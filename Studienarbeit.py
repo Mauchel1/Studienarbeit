@@ -79,20 +79,22 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     averageHue /= np.size(hsvImage, 1) * np.size(hsvImage, 0)
 
     print averageHue
+    print averageSaturation
+    print averageValue
     
-    if averageValue < 0.1:
+    if averageValue < 25:
         print "Bild zu dunkel"
-    elif averageSaturation < 0.1:
+    elif averageSaturation < 25:
         print "Bild zu hell"
     else:
         print "Bild ok"
-        if (averageHue < 40) or (averageHue >= 300): #rot
+        if (averageHue < 20) or (averageHue >= 150): #rot
             print "rot"
-        elif averageHue >= 40 and averageHue < 80: #gelb
+        elif averageHue >= 20 and averageHue < 40: #gelb
             print "gelb"            
-        elif averageHue >= 80 and averageHue < 170: #grün
+        elif averageHue >= 40 and averageHue < 85: #grün
             print "grün"
-        elif averageHue >= 170 and averageHue < 300: #blau
+        elif averageHue >= 85 and averageHue < 150: #blau
             print "blau"
         else:
             print "irgendwie schiefgelaufen..."
