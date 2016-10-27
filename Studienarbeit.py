@@ -13,6 +13,7 @@ BLUE = 210
 GREEN = 145
 RED = 320
 
+fgbg = cv2.createBackgroundSubtractorMOG2()
 
 #kamera init
 camera = PiCamera()
@@ -52,6 +53,23 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
 
     #bild bearbeiten
     grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # zum graubild konvertieren
+
+    mask = fgbg.apply(grayImage)# Hintergrund abziehen
+    muell, mask = cv2.threshold(mask, 5, 255, cv2.THRESH_BINARY)# binarisieren
+    mask = cv2.GaussianBlur(mask,(5,5),0) # noise rausfiltern
+    muell, mask = cv2.threshold(mask, 3, 255, cv2.THRESH_BINARY)# binarisieren
+
+    #Konturen + Mittelpunkt finden
+    _, contours, hierarchy = cv2.findContours(mask, 1, 2)
+    areas = [cv2.contourArea(c) for c in contours]
+    maxIndex = np.argmax(areas)
+    cnt = contours[maxIndex]
+    (x,y),radius = cv2.minEnclosingCircle(cnt)
+    center = (int(x),int(y))
+    radius = int(radius)
+    cv2.circle(image,center,radius,(0,255,0),2)
+
+    #roi
     cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
     roiImage = image[150:350, 100:530] # Region of Interest setzen
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
@@ -91,8 +109,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     
     #bild anzeigen
     camera.annotate_text = "Press q to quit"
-    cv2.imshow("Frame", h)
-    #cv2.imshow("mask", mask)
+    cv2.imshow("Frame", image)
+    cv2.imshow("mask", mask)
     #cv2.imshow("roiImage", roiImage)
     key = cv2.waitKey(1) & 0xFF
 
