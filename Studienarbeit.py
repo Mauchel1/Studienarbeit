@@ -63,20 +63,13 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #b,g,r = cv2.split(image)
     h,s,v = cv2.split(hsvImage)
 
-    averageHue = 0 #TODO
-    averageSaturation = 0 #TODO
-    averageValue = 0 #TODO
+    averageRowHue = np.average(h, axis=0) 
+    averageRowSaturation = np.average(s, axis=0) 
+    averageRowValue = np.average(v, axis=0) 
 
-    i = 0
-    for column in xrange (0, np.size(hsvImage, 1)-1): # TODO optimieren - dauert LANGE
-        for row in xrange (0, np.size(hsvImage, 0)-1):
-            averageHue += hsvImage[row][column][0]
-            averageSaturation += hsvImage[row][column][1]
-            averageValue += hsvImage[row][column][2]
-
-    averageValue /= np.size(hsvImage, 1) * np.size(hsvImage, 0)
-    averageSaturation /= np.size(hsvImage, 1) * np.size(hsvImage, 0)
-    averageHue /= np.size(hsvImage, 1) * np.size(hsvImage, 0)
+    averageHue = np.average(averageRowHue)
+    averageSaturation = np.average(averageRowSaturation)
+    averageValue = np.average(averageRowValue) 
 
     print averageHue
     print averageSaturation
