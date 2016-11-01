@@ -52,8 +52,10 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     image = frame.array
 
     #bild bearbeiten
-    grayImage = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # zum graubild konvertieren
 
+    roiImage = image[150:350, 100:530] # Region of Interest setzen
+    cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
+    grayImage = cv2.cvtColor(roiImage, cv2.COLOR_BGR2GRAY) # zum graubild konvertieren
     mask = fgbg.apply(grayImage)# Hintergrund abziehen
     muell, mask = cv2.threshold(mask, 5, 255, cv2.THRESH_BINARY)# binarisieren
     mask = cv2.GaussianBlur(mask,(5,5),0) # noise rausfiltern
@@ -70,18 +72,24 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     (x,y),radius = cv2.minEnclosingCircle(cnt)
     center = (int(x),int(y))
     radius = int(radius)
-    cv2.circle(image,center,radius,(0,255,0),2)
-
-    #roi
-    cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
-    roiImage = image[150:350, 100:530] # Region of Interest setzen
     if radius < 12: # falls Radius zu klein abbrechen
         rawCapture.truncate(0)
         continue
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
 
+    if center[1]-radius < 0 :
+        objectImageY = 0
+    else:
+        objectImageY = center[1]-radius
+    if center[0]-radius < 0 :
+        objectImageX = 0
+    else:
+        objectImageX = center[0]-radius
+    
+    objectImage = hsvImage[objectImageY : center[1]+radius, objectImageX : center[0]+radius] 
+
     #b,g,r = cv2.split(image)
-    h,s,v = cv2.split(hsvImage)
+    h,s,v = cv2.split(objectImage)
 
     averageRowHue = np.average(h, axis=0) 
     averageRowSaturation = np.average(s, axis=0) 
@@ -116,7 +124,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #bild anzeigen
     camera.annotate_text = "Press q to quit"
     cv2.imshow("Frame", image)
-    cv2.imshow("mask", mask)
+    #cv2.imshow("mask",  mask)
+    #cv2.imshow("objectImage", objectImage)
     #cv2.imshow("roiImage", roiImage)
     key = cv2.waitKey(1) & 0xFF
 
