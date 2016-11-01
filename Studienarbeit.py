@@ -62,6 +62,9 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #Konturen + Mittelpunkt finden
     _, contours, hierarchy = cv2.findContours(mask, 1, 2)
     areas = [cv2.contourArea(c) for c in contours]
+    if not areas: # falls leer abbrechen
+        rawCapture.truncate(0)
+        continue
     maxIndex = np.argmax(areas)
     cnt = contours[maxIndex]
     (x,y),radius = cv2.minEnclosingCircle(cnt)
@@ -72,6 +75,9 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #roi
     cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
     roiImage = image[150:350, 100:530] # Region of Interest setzen
+    if radius < 12: # falls Radius zu klein abbrechen
+        rawCapture.truncate(0)
+        continue
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
 
     #b,g,r = cv2.split(image)
