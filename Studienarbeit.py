@@ -75,6 +75,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     if radius < 12: # falls Radius zu klein abbrechen
         rawCapture.truncate(0)
         continue
+    cv2.circle(roiImage,center,radius,(0,255,0),2)
+    
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
 
     if center[1]-radius < 0 :
