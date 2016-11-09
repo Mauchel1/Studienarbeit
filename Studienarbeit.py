@@ -14,6 +14,7 @@ GREEN = 145
 RED = 320
 
 fgbg = cv2.createBackgroundSubtractorMOG2()
+numberOfFounds = 0
 
 #kamera init
 camera = PiCamera()
@@ -47,6 +48,12 @@ time.sleep(2.5)
 #solange Kamera frames hergibt
 for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
 
+    key = cv2.waitKey(1) & 0xFF
+
+    #schleife bei q verlassen
+    if key == ord("q"):
+        break
+
     #bild aufnehmen
     #camera.capture(rawCapture, format="bgr")
     image = frame.array
@@ -65,6 +72,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     _, contours, hierarchy = cv2.findContours(mask, 1, 2)
     areas = [cv2.contourArea(c) for c in contours]
     if not areas: # falls leer abbrechen
+        numberOfFounds = 0
         rawCapture.truncate(0)
         continue
     maxIndex = np.argmax(areas)
@@ -72,13 +80,27 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     (x,y),radius = cv2.minEnclosingCircle(cnt)
     center = (int(x),int(y))
     radius = int(radius)
-    if radius < 12: # falls Radius zu klein abbrechen
+    if radius < 70: # falls Radius zu klein abbrechen
+        numberOfFounds = 0
+        cv2.imshow("Frame", image)
         rawCapture.truncate(0)
         continue
     cv2.circle(roiImage,center,radius,(0,255,0),2)
     
+    numberOfFounds = numberOfFounds + 1
+    if numberOfFounds < 3: # nicht genug valide Objekte hintereinander -> keine Berechnung
+        cv2.imshow("Frame", image)
+        rawCapture.truncate(0)
+        continue
+
+    if center[0]< 100 or center[0] > 300: # Objekt am Rand -> keine Berechnung
+        cv2.imshow("Frame", image)
+        rawCapture.truncate(0)
+        continue
+
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
 
+    # offsetkorrektur
     if center[1]-radius < 0 :
         objectImageY = 0
     else:
@@ -102,8 +124,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     averageValue = np.average(averageRowValue) 
 
     print averageHue
-    print averageSaturation
-    print averageValue
+    #print averageSaturation
+    #print averageValue
     
     if averageValue < 25:
         print "Bild zu dunkel"
@@ -112,13 +134,13 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     else:
         print "Bild ok"
         if (averageHue < 20) or (averageHue >= 150): #rot
-            print "rot"
+            cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
         elif averageHue >= 20 and averageHue < 40: #gelb
-            print "gelb"            
+            cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
         elif averageHue >= 40 and averageHue < 85: #grün
-            print "grün"
+            cv2.putText(image, "GREEN", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
         elif averageHue >= 85 and averageHue < 150: #blau
-            print "blau"
+            cv2.putText(image, "BLUE", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
         else:
             print "irgendwie schiefgelaufen..."
             
@@ -129,12 +151,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #cv2.imshow("mask",  mask)
     #cv2.imshow("objectImage", objectImage)
     #cv2.imshow("roiImage", roiImage)
-    key = cv2.waitKey(1) & 0xFF
 
     #aufräumen
     rawCapture.truncate(0)
-
-    #schleife bei q verlassen
-    if key == ord("q"):
-        break
 
