@@ -28,6 +28,18 @@ GPIO.setup(LEDB, GPIO.OUT, initial = 0)
 fgbg = cv2.createBackgroundSubtractorMOG2()
 numberOfFounds = 0
 
+#Trackbar
+def nothing(x):
+    pass
+
+cv2.namedWindow("Frame")
+cv2.createTrackbar('HLow', 'Frame', 0, 180, nothing)
+cv2.createTrackbar('HHigh', 'Frame', 0, 180, nothing)
+cv2.createTrackbar('SLow', 'Frame', 0, 255, nothing)
+cv2.createTrackbar('SHigh', 'Frame', 0, 255, nothing)
+cv2.createTrackbar('VLow', 'Frame', 0, 255, nothing)
+cv2.createTrackbar('VHigh', 'Frame', 0, 255, nothing)
+
 #kamera init
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -155,6 +167,13 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     print averageHue
     #print averageSaturation
     #print averageValue
+
+    HLow = cv2.getTrackbarPos('HLow','Frame')
+    HHigh = cv2.getTrackbarPos('HHigh','Frame')
+    SLow = cv2.getTrackbarPos('SLow','Frame')
+    SHigh = cv2.getTrackbarPos('SHigh','Frame')
+    VLow = cv2.getTrackbarPos('VLow','Frame')
+    VHigh = cv2.getTrackbarPos('VHigh','Frame')
     
     if averageValue < 25:
         print "Bild zu dunkel"
