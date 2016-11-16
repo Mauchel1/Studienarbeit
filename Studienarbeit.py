@@ -138,10 +138,11 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     else:
         objectImageX = center[0]-radius
     
-    objectImage = hsvImage[objectImageY : center[1]+radius, objectImageX : center[0]+radius] 
+    objectImage = hsvImage[objectImageY : center[1]+radius, objectImageX : center[0]+radius]
+    objectImageCenter = hsvImage[objectImageY + (radius / 2)  : center[1] + (radius / 2) , objectImageX + (radius / 2): center[0] + (radius / 2)]
 
     #b,g,r = cv2.split(image)
-    h,s,v = cv2.split(objectImage)
+    h,s,v = cv2.split(objectImageCenter)
 
     averageRowHue = np.average(h, axis=0) 
     averageRowSaturation = np.average(s, axis=0) 
@@ -185,7 +186,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     camera.annotate_text = "Press q to quit"
     cv2.imshow("Frame", image)
     #cv2.imshow("mask",  mask)
-    #cv2.imshow("objectImage", objectImage)
+    cv2.imshow("objectImage", objectImageCenter)
     #cv2.imshow("roiImage", roiImage)
 
     #aufräumen
