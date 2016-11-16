@@ -1,17 +1,29 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # import packages
 
 from picamera.array import PiRGBArray
 from picamera import PiCamera
+import RPi.GPIO as GPIO
 import time
 import cv2
 import numpy as np
+import io
 
-#variablen anlegen
-YELLOW = 30
-BLUE = 210
-GREEN = 145
-RED = 320
+#setup
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+LEDR = 4
+LEDY = 27
+LEDG = 17
+LEDB = 22
+
+GPIO.setup(LEDR, GPIO.OUT, initial = 0)
+GPIO.setup(LEDY, GPIO.OUT, initial = 0)
+GPIO.setup(LEDG, GPIO.OUT, initial = 0)
+GPIO.setup(LEDB, GPIO.OUT, initial = 0)
 
 fgbg = cv2.createBackgroundSubtractorMOG2()
 numberOfFounds = 0
@@ -20,7 +32,7 @@ numberOfFounds = 0
 camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 42 #max 40-90
-camera.iso = 400
+camera.iso = 1200
 
 time.sleep(2)
 camera.shutter_speed = camera.exposure_speed
@@ -74,6 +86,10 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     if not areas: # falls leer abbrechen
         numberOfFounds = 0
         rawCapture.truncate(0)
+        GPIO.output(LEDR, False)
+        GPIO.output(LEDY, False)
+        GPIO.output(LEDG, False)
+        GPIO.output(LEDB, False)
         continue
     maxIndex = np.argmax(areas)
     cnt = contours[maxIndex]
@@ -84,6 +100,10 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         numberOfFounds = 0
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
+        GPIO.output(LEDR, False)
+        GPIO.output(LEDY, False)
+        GPIO.output(LEDG, False)
+        GPIO.output(LEDB, False)
         continue
     cv2.circle(roiImage,center,radius,(0,255,0),2)
     
@@ -91,11 +111,19 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     if numberOfFounds < 3: # nicht genug valide Objekte hintereinander -> keine Berechnung
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
+        GPIO.output(LEDR, False)
+        GPIO.output(LEDY, False)
+        GPIO.output(LEDG, False)
+        GPIO.output(LEDB, False)
         continue
 
     if center[0]< 100 or center[0] > 300: # Objekt am Rand -> keine Berechnung
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
+        GPIO.output(LEDR, False)
+        GPIO.output(LEDY, False)
+        GPIO.output(LEDG, False)
+        GPIO.output(LEDB, False)
         continue
 
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
@@ -133,14 +161,22 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         print "Bild zu hell"
     else:
         print "Bild ok"
+        GPIO.output(LEDR, False)
+        GPIO.output(LEDY, False)
+        GPIO.output(LEDG, False)
+        GPIO.output(LEDB, False)
         if (averageHue < 20) or (averageHue >= 150): #rot
             cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            GPIO.output(LEDR, True)
         elif averageHue >= 20 and averageHue < 40: #gelb
             cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            GPIO.output(LEDY, True)
         elif averageHue >= 40 and averageHue < 85: #grün
             cv2.putText(image, "GREEN", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            GPIO.output(LEDG, True)
         elif averageHue >= 85 and averageHue < 150: #blau
             cv2.putText(image, "BLUE", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            GPIO.output(LEDB, True)
         else:
             print "irgendwie schiefgelaufen..."
             
