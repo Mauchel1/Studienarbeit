@@ -9,6 +9,8 @@ import time
 import cv2
 import numpy as np
 import io
+import socket
+import struct
 
 #setup
 
@@ -208,6 +210,23 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     cv2.imshow("objectImage", objectImageCenter)
     #cv2.imshow("roiImage", roiImage)
 
+
+    #print "erstelle Clientserver"
+    #client_socket = socket.socket()
+    #print "verbinde mit 0.0.0.0:8000"
+    #client_socket.connect(('Servername', 8000)) # TODO Servernamen eintragen
+    
+    #connection = server_socket.makefile('wb')
+    #print "connection aufgebaut"
+    #try:
+    #    while True:
+    #        # länge des Bildes einlesen (32-bit unsigned int)
+    #        imageLength = struct.unpack('<L', connection.read(struct.calcsize('<L')))[0]
+    #        if not imageLength: # wenn Bild leer - abbrechen
+    #            break
+    #finally:
+    #    connection.close()
+    
     #aufräumen
     rawCapture.truncate(0)
 
