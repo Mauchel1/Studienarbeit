@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import io
 import socket
+import ConfigParser
 
 #setup
 
@@ -79,6 +80,18 @@ MESSAGE = "Hello World!"
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
+# config
+parser = ConfigParser.SafeConfigParser()
+parser.read('config.ini')
+bandL = parser.getint('roi_band', 'links')
+bandR = parser.getint('roi_band', 'rechts')
+bandU = parser.getint('roi_band', 'unten')
+bandO = parser.getint('roi_band', 'oben')
+
+# wird nur ausgeführt bei aufruf mit "python -O XXX"
+if not __debug__:
+    print "CONFIG MODE"
+
 #solange Kamera frames hergibt
 for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
 
@@ -94,8 +107,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
 
     #bild bearbeiten
 
-    roiImage = image[150:350, 100:530] # Region of Interest setzen
-    cv2.rectangle(image, (100, 150), (530, 350), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
+    roiImage = image[bandO:bandU, bandL:bandR] # Region of Interest setzen
+    cv2.rectangle(image, (bandL, bandO), (bandR, bandU), (0,0,255),3) # (x,y) (x+w,y+h) (farbe) (dicke)
     grayImage = cv2.cvtColor(roiImage, cv2.COLOR_BGR2GRAY) # zum graubild konvertieren
     mask = fgbg.apply(grayImage)# Hintergrund abziehen
     muell, mask = cv2.threshold(mask, 5, 255, cv2.THRESH_BINARY)# binarisieren
