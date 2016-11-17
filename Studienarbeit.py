@@ -10,7 +10,6 @@ import cv2
 import numpy as np
 import io
 import socket
-import struct
 
 #setup
 
@@ -70,6 +69,15 @@ rawCapture = PiRGBArray(camera, size=(640, 480))
 
 #kamera hochfahren lassen
 time.sleep(2.5)
+
+# socket UDP config
+#UDP_IP = "127.0.0.1"
+UDP_IP = "169.254.255.255"
+UDP_PORT = 5005
+MESSAGE = "Hello World!"
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 #solange Kamera frames hergibt
 for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
@@ -210,22 +218,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     cv2.imshow("objectImage", objectImageCenter)
     #cv2.imshow("roiImage", roiImage)
 
-
-    #print "erstelle Clientserver"
-    #client_socket = socket.socket()
-    #print "verbinde mit 0.0.0.0:8000"
-    #client_socket.connect(('Servername', 8000)) # TODO Servernamen eintragen
-    
-    #connection = server_socket.makefile('wb')
-    #print "connection aufgebaut"
-    #try:
-    #    while True:
-    #        # länge des Bildes einlesen (32-bit unsigned int)
-    #        imageLength = struct.unpack('<L', connection.read(struct.calcsize('<L')))[0]
-    #        if not imageLength: # wenn Bild leer - abbrechen
-    #            break
-    #finally:
-    #    connection.close()
+    print "Sende Daten"
+    sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
     
     #aufräumen
     rawCapture.truncate(0)
