@@ -232,7 +232,10 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #cv2.imshow("roiImage", roiImage)
 
     print "Sende Daten"
-    sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+    try:
+        sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+    except:
+        print "could not send Data, please check Connection"
     
     #aufräumen
     rawCapture.truncate(0)
