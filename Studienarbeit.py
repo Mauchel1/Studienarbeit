@@ -88,6 +88,9 @@ bandR = parser.getint('roi_band', 'rechts')
 bandU = parser.getint('roi_band', 'unten')
 bandO = parser.getint('roi_band', 'oben')
 
+fpsLast = time.time()
+fpsNow = time.time()
+
 # wird nur ausgeführt bei aufruf mit "python -O XXX"
 if not __debug__:
     print "CONFIG MODE"
@@ -95,6 +98,14 @@ if not __debug__:
 #solange Kamera frames hergibt
 for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
 
+    #estimate fps
+    fpsLast = fpsNow
+    fpsNow = time.time()
+    timediff = fpsNow - fpsLast
+    fps = 1 / timediff
+
+    print "Estimated fps: {0}".format(fps)
+    
     key = cv2.waitKey(1) & 0xFF
 
     #schleife bei q verlassen
