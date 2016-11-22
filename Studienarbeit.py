@@ -82,7 +82,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 # config
 parser = ConfigParser.SafeConfigParser()
-parser.read('config.ini')
+parser.read('/home/pi/Studienarbeit/config.ini')
 bandL = parser.getint('roi_band', 'links')
 bandR = parser.getint('roi_band', 'rechts')
 bandU = parser.getint('roi_band', 'unten')
@@ -208,10 +208,10 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         GPIO.output(LEDY, False)
         GPIO.output(LEDG, False)
         GPIO.output(LEDB, False)
-        if (averageHue < 20) or (averageHue >= 150): #rot
+        if (averageHue < 10) or (averageHue >= 150): #rot
             cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
-        elif averageHue >= 20 and averageHue < 40: #gelb
+        elif averageHue >= 10 and averageHue < 40: #gelb
             cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDY, True)
         elif averageHue >= 40 and averageHue < 85: #grün
