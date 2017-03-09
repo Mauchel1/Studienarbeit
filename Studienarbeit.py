@@ -67,9 +67,9 @@ time.sleep(2.5)
 
 # socket UDP config
 #UDP_IP = "127.0.0.1"
-UDP_IP = "169.254.255.255"
+UDP_IP = "192.168.137.255"
 UDP_PORT = 5005
-MESSAGE = "Hello World!"
+MESSAGE = "-"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -197,18 +197,23 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     else:
         print "Bild ok"
         GPIOOFF()
+        MESSAGE = "-"
         if (averageHue < 10) or (averageHue >= 150): #rot
             cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
         elif averageHue >= 10 and averageHue < 40: #gelb
+            MESSAGE = "R," + str(center[0]) + "," + str(radius)
             cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDY, True)
         elif averageHue >= 40 and averageHue < 85: #grün
+            MESSAGE = "Y," + str(center[0]) + "," + str(radius)
             cv2.putText(image, "GREEN", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDG, True)
+            MESSAGE = "G," + str(center[0]) + "," + str(radius)
         elif averageHue >= 85 and averageHue < 150: #blau
             cv2.putText(image, "BLUE", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDB, True)
+            MESSAGE = "B," + str(center[0]) + "," + str(radius)
         else:
             print "irgendwie schiefgelaufen..."
             
@@ -216,9 +221,9 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #bild anzeigen
     camera.annotate_text = "Press q to quit"
     cv2.imshow("Frame", image)
-    cv2.imshow("mask",  mask)
+    #cv2.imshow("mask",  mask)
     cv2.imshow("objectImage", objectImageCenter)
-    cv2.imshow("roiImage", roiImage)
+    #cv2.imshow("roiImage", roiImage)
 
     print "Sende Daten"
     try:
