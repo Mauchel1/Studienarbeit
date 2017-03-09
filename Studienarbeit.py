@@ -139,7 +139,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     (x,y),radius = cv2.minEnclosingCircle(cnt)
     center = (int(x),int(y))
     radius = int(radius)
-    if radius < 70: # falls Radius zu klein abbrechen
+    if radius < 75 or radius > 250: # falls Radius zu klein abbrechen
         numberOfFounds = 0
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
@@ -201,12 +201,12 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         if (averageHue < 10) or (averageHue >= 150): #rot
             cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
-        elif averageHue >= 10 and averageHue < 40: #gelb
             MESSAGE = "R," + str(center[0]) + "," + str(radius)
+        elif averageHue >= 10 and averageHue < 35: #gelb
             cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDY, True)
-        elif averageHue >= 40 and averageHue < 85: #grün
             MESSAGE = "Y," + str(center[0]) + "," + str(radius)
+        elif averageHue >= 35 and averageHue < 85: #grün
             cv2.putText(image, "GREEN", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDG, True)
             MESSAGE = "G," + str(center[0]) + "," + str(radius)
