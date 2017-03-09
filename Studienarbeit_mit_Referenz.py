@@ -67,9 +67,9 @@ time.sleep(2.5)
 
 # socket UDP config
 #UDP_IP = "127.0.0.1"
-UDP_IP = "169.254.255.255"
+UDP_IP = "192.168.137.255"
 UDP_PORT = 5005
-MESSAGE = "Hello World!"
+MESSAGE = "-"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -230,18 +230,23 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     else:
         print "Bild ok"
         GPIOOFF()
+        MESSAGE = "-"
         if (averageHue >= ref1avHue-15) and (averageHue < ref1avHue+15): #area1
-            cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            cv2.putText(image, "R", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
+            MESSAGE = "R," + str(center[0]) + "," + str(radius)
         elif averageHue >= ref2avHue-15 and averageHue < ref2avHue+15: #area2
-            cv2.putText(image, "GREEN", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            cv2.putText(image, "G", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDG, True)
+            MESSAGE = "G," + str(center[0]) + "," + str(radius)
         elif averageHue >= ref3avHue-15 and averageHue < ref3avHue+15: #area3
-            cv2.putText(image, "YELLOW", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            cv2.putText(image, "Y", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDY, True)
+            MESSAGE = "Y," + str(center[0]) + "," + str(radius)
         elif averageHue >= ref4avHue-15 and averageHue < ref4avHue+15: #area4
-            cv2.putText(image, "BLUE", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            cv2.putText(image, "B", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDB, True)
+            MESSAGE = "B," + str(center[0]) + "," + str(radius)
         else:
             print "irgendwie schiefgelaufen..."
             
@@ -249,9 +254,9 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     #bild anzeigen
     camera.annotate_text = "Press q to quit"
     cv2.imshow("Frame", image)
-    cv2.imshow("mask",  mask)
+    #cv2.imshow("mask",  mask)
     cv2.imshow("objectImage", objectImageCenter)
-    cv2.imshow("roiImage", roiImage)
+    #cv2.imshow("roiImage", roiImage)
 
     print "Sende Daten"
     try:
