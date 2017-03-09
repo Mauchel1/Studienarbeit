@@ -35,12 +35,6 @@ def nothing(x):
     pass
 
 cv2.namedWindow("Frame")
-cv2.createTrackbar('HLow', 'Frame', 0, 180, nothing)
-cv2.createTrackbar('HHigh', 'Frame', 0, 180, nothing)
-cv2.createTrackbar('SLow', 'Frame', 0, 255, nothing)
-cv2.createTrackbar('SHigh', 'Frame', 0, 255, nothing)
-cv2.createTrackbar('VLow', 'Frame', 0, 255, nothing)
-cv2.createTrackbar('VHigh', 'Frame', 0, 255, nothing)
 
 #kamera init
 camera = PiCamera()
@@ -105,6 +99,12 @@ fpsNow = time.time()
 if not __debug__:
     print "CONFIG MODE"
 
+def GPIOOFF():
+    GPIO.output(LEDR, False)
+    GPIO.output(LEDY, False)
+    GPIO.output(LEDG, False)
+    GPIO.output(LEDB, False)
+
 #solange Kamera frames hergibt
 for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
 
@@ -151,10 +151,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     if not areas: # falls leer abbrechen
         numberOfFounds = 0
         rawCapture.truncate(0)
-        GPIO.output(LEDR, False)
-        GPIO.output(LEDY, False)
-        GPIO.output(LEDG, False)
-        GPIO.output(LEDB, False)
+        GPIOOFF()
         continue
     maxIndex = np.argmax(areas)
     cnt = contours[maxIndex]
@@ -165,10 +162,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         numberOfFounds = 0
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
-        GPIO.output(LEDR, False)
-        GPIO.output(LEDY, False)
-        GPIO.output(LEDG, False)
-        GPIO.output(LEDB, False)
+        GPIOOFF()
         continue
     cv2.circle(roiImage,center,radius,(0,255,0),2)
     
@@ -176,19 +170,13 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     if numberOfFounds < 3: # nicht genug valide Objekte hintereinander -> keine Berechnung
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
-        GPIO.output(LEDR, False)
-        GPIO.output(LEDY, False)
-        GPIO.output(LEDG, False)
-        GPIO.output(LEDB, False)
+        GPIOOFF()
         continue
 
     if center[0]< 100 or center[0] > 300: # Objekt am Rand -> keine Berechnung
         cv2.imshow("Frame", image)
         rawCapture.truncate(0)
-        GPIO.output(LEDR, False)
-        GPIO.output(LEDY, False)
-        GPIO.output(LEDG, False)
-        GPIO.output(LEDB, False)
+        GPIOOFF()
         continue
 
     hsvImage = cv2.cvtColor(roiImage,cv2.COLOR_BGR2HSV) # zum HSV Bild konvertieren
@@ -241,10 +229,7 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         print "Bild zu hell"
     else:
         print "Bild ok"
-        GPIO.output(LEDR, False)
-        GPIO.output(LEDY, False)
-        GPIO.output(LEDG, False)
-        GPIO.output(LEDB, False)
+        GPIOOFF()
         if (averageHue >= ref1avHue-15) and (averageHue < ref1avHue+15): #area1
             cv2.putText(image, "RED", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
