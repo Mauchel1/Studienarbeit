@@ -204,8 +204,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     averageHue = np.average(averageRowHue)
     averageSaturation = np.average(averageRowSaturation)
     averageValue = np.average(averageRowValue) 
-
-    print averageHue
+    
+    #print averageHue
     #print averageSaturation
     #print averageValue
 
@@ -223,6 +223,8 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
     ref4avRowHue = np.average(href4, axis=0) 
     ref4avHue = np.average(ref4avRowHue)
 
+    print "Hue:{0} 1:{1} 2:{2} 3:{3} 4:{4}".format(averageHue, ref1avHue, ref2avHue, ref3avHue, ref4avHue)
+
     if averageValue < 25:
         print "Bild zu dunkel"
     elif averageSaturation < 25:
@@ -231,19 +233,19 @@ for frame in camera.capture_continuous(rawCapture, format = "bgr", use_video_por
         print "Bild ok"
         GPIOOFF()
         MESSAGE = "-"
-        if (averageHue >= ref1avHue-15) and (averageHue < ref1avHue+15): #area1
+        if (averageHue >= ref1avHue-6) and (averageHue < ref1avHue+6): #area1
             cv2.putText(image, "R", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDR, True)
             MESSAGE = "R," + str(center[0]) + "," + str(radius)
-        elif averageHue >= ref2avHue-15 and averageHue < ref2avHue+15: #area2
+        elif averageHue >= ref2avHue-6 and averageHue < ref2avHue+6: #area2
             cv2.putText(image, "G", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
-            GPIO.output(LEDG, True)
-            MESSAGE = "G," + str(center[0]) + "," + str(radius)
-        elif averageHue >= ref3avHue-15 and averageHue < ref3avHue+15: #area3
-            cv2.putText(image, "Y", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDY, True)
             MESSAGE = "Y," + str(center[0]) + "," + str(radius)
-        elif averageHue >= ref4avHue-15 and averageHue < ref4avHue+15: #area4
+        elif averageHue >= ref3avHue-6 and averageHue < ref3avHue+6: #area3
+            cv2.putText(image, "Y", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
+            GPIO.output(LEDG, True)
+            MESSAGE = "G," + str(center[0]) + "," + str(radius)
+        elif averageHue >= ref4avHue-6 and averageHue < ref4avHue+6: #area4
             cv2.putText(image, "B", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255),2,cv2.LINE_AA)
             GPIO.output(LEDB, True)
             MESSAGE = "B," + str(center[0]) + "," + str(radius)
